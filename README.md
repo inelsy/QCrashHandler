@@ -1,3 +1,24 @@
+## Usage in project
+
+
+- include qtdumper.pri to your .pro file
+```cmake
+include(qcrashhandler/qtdumper.pri)
+```
+
+- include the class at the entry point of your project
+```c++
+#include "qtdumper/qtdumper.h"
+```
+
+- init class
+```c++
+QtDumper Dumper();
+// or QtDumper Dumper(parent);
+// or QtDumper Dumper(parent, deleteDumpAfterUploadBoolFlag);
+// or QtDumper Dumper(parent, deleteDumpAfterUploadBoolFlag, "pathToDumpsFolder");
+```
+
 ## How to Use
 
 In your *Qt* project file (`*.pro`) simply *include* the `./src/qcrashhandler.pri` file from this repository:
