@@ -367,3 +367,5 @@ Thumbs.db
 
 *.stash
 *.filters
+*.idx
+*.json
