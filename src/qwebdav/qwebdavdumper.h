@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBDAV_H
-#define QWEBDAV_H
+#ifndef QWEBDAVDUMPER_H
+#define QWEBDAVDUMPER_H
 
 #include "qwebdav_global.h"
 #include <QDebug>
@@ -59,21 +59,21 @@
 /**
  * @brief Main class used to handle the webdav protocol
  */
-class QWEBDAVSHARED_EXPORT QWebdav : public QNetworkAccessManager
+class QWEBDAVDUMPERSHARED_EXPORT QWebdavDumper : public QNetworkAccessManager
 {
     Q_OBJECT
 
 public:
-    enum QWebdavConnectionType {HTTP = 1, HTTPS};
+	enum QWebdavConnectionType { HTTP = 1,
+								 HTTPS };
 
-    explicit QWebdav(QObject* parent = nullptr);
-    ~QWebdav();
+	explicit QWebdavDumper(QObject* parent = nullptr);
+	~QWebdavDumper();
 
-    typedef QMap<QString, QMap < QString, QVariant > > PropValues;
-    typedef QMap<QString, QStringList > PropNames;
+	typedef QMap<QString, QMap<QString, QVariant> > PropValues;
+	typedef QMap<QString, QStringList> PropNames;
 
-
-    [[nodiscard]] QString hostname() const;
+	[[nodiscard]] QString hostname() const;
     [[nodiscard]] int port() const;
     [[nodiscard]] QString rootPath() const;
     [[nodiscard]] QString username() const;
@@ -110,17 +110,17 @@ public:
 	QNetworkReply* mkdir(const QString& dir);
 	QNetworkReply* copy(const QString& pathFrom, const QString& pathTo, bool overwrite = false);
 	QNetworkReply* move(const QString& pathFrom, const QString& pathTo, bool overwrite = false);
-	QNetworkReply* remove(const QString& path );
+	QNetworkReply* remove(const QString& path);
 
-    QNetworkReply* propfind(const QString& path, const QByteArray& query, int depth = 0);
-    QNetworkReply* propfind(const QString& path, const QWebdav::PropNames& props, int depth = 0);
+	QNetworkReply* propfind(const QString& path, const QByteArray& query, int depth = 0);
+	QNetworkReply* propfind(const QString& path, const QWebdavDumper::PropNames& props, int depth = 0);
 
-    QNetworkReply* proppatch(const QString& path, const QWebdav::PropValues& props);
-    QNetworkReply* proppatch(const QString& path, const QByteArray& query);
+	QNetworkReply* proppatch(const QString& path, const QWebdavDumper::PropValues& props);
+	QNetworkReply* proppatch(const QString& path, const QByteArray& query);
 
-    /* TODO lock, unlock */
+	/* TODO lock, unlock */
 
-    //! converts a digest from QByteArray to hexadecimal format ( XX:XX:XX:... with X in [0-9,A-F] )
+	//! converts a digest from QByteArray to hexadecimal format ( XX:XX:XX:... with X in [0-9,A-F] )
     static QString digestToHex(const QByteArray &input);
     //! converts a digest from hexadecimal format ( XX:XX:XX:... with X in [0-9,A-F] ) to QByteArray
     static QByteArray hexToDigest(const QString &input);
@@ -166,4 +166,4 @@ private:
     QByteArray m_sslCertDigestSha1;
 };
 
-#endif // QWEBDAV_H
+#endif // QWEBDAVDUMPER_H

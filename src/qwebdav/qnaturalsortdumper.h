@@ -41,19 +41,19 @@
 
 // naturalCompare from http://qt.gitorious.org/qt/qt/blobs/4.7/src/gui/dialogs/qfilesystemmodel.cpp
 
-#ifndef QNATURALSORT_H
-#define QNATURALSORT_H
+#ifndef QNATURALSORTDUMPER_H
+#define QNATURALSORTDUMPER_H
 
 #include <QtCore>
 
 #include "qwebdav_global.h"
 
-class QWEBDAVSHARED_EXPORT QNaturalSort
+class QWEBDAVDUMPERSHARED_EXPORT QNaturalSortDumper
 {
 public:
-    QNaturalSort();
+	QNaturalSortDumper();
 
-    static int naturalCompare(const QString &s1, const QString &s2,  Qt::CaseSensitivity cs = Qt::CaseInsensitive);
+	static int naturalCompare(const QString &s1, const QString &s2,  Qt::CaseSensitivity cs = Qt::CaseInsensitive);
 };
 
-#endif // QNATURALSORT_H
+#endif // QNATURALSORTDUMPER_H

@@ -48,117 +48,115 @@
 **
 ****************************************************************************/
 
-#include "qwebdav.h"
+#include "qwebdavdumper.h"
 
-QWebdav::QWebdav (QObject *parent) : QNetworkAccessManager(parent)
-  ,m_rootPath()
-  ,m_username()
-  ,m_password()
-  ,m_baseUrl()
-  ,m_currentConnectionType(QWebdav::HTTP)
-  ,m_authenticator_lastReply(nullptr)
-  ,m_sslCertDigestMd5("")
-  ,m_sslCertDigestSha1("")
+QWebdavDumper::QWebdavDumper(QObject* parent)
+	: QNetworkAccessManager(parent)
+	, m_rootPath()
+	, m_username()
+	, m_password()
+	, m_baseUrl()
+	, m_currentConnectionType(QWebdavDumper::HTTP)
+	, m_authenticator_lastReply(nullptr)
+	, m_sslCertDigestMd5("")
+	, m_sslCertDigestSha1("")
 
 {
-    qRegisterMetaType<QNetworkReply*>("QNetworkReply*");
-    connect(this, &QWebdav::finished, this, &QWebdav::replyFinished);
-    connect(this, &QWebdav::authenticationRequired, this, &QWebdav::provideAuthenication);
+	qRegisterMetaType<QNetworkReply*>("QNetworkReply*");
+	connect(this, &QWebdavDumper::finished, this, &QWebdavDumper::replyFinished);
+	connect(this, &QWebdavDumper::authenticationRequired, this, &QWebdavDumper::provideAuthenication);
 }
 
-QWebdav::~QWebdav()
+QWebdavDumper::~QWebdavDumper()
 {
 }
 
-QString QWebdav::hostname() const
+QString QWebdavDumper::hostname() const
 {
     return m_baseUrl.host();
 }
 
-int QWebdav::port() const
+int QWebdavDumper::port() const
 {
     return m_baseUrl.port();
 }
 
-QString QWebdav::rootPath() const
+QString QWebdavDumper::rootPath() const
 {
     return m_rootPath;
 }
 
-QString QWebdav::username() const
+QString QWebdavDumper::username() const
 {
     return m_username;
 }
 
-QString QWebdav::password() const
+QString QWebdavDumper::password() const
 {
     return m_password;
 }
 
-QWebdav::QWebdavConnectionType QWebdav::connectionType() const
+QWebdavDumper::QWebdavConnectionType QWebdavDumper::connectionType() const
 {
     return m_currentConnectionType;
 }
 
-bool QWebdav::isSSL() const
+bool QWebdavDumper::isSSL() const
 {
-    return (m_currentConnectionType==QWebdav::HTTPS);
+	return (m_currentConnectionType == QWebdavDumper::HTTPS);
 }
 
-void QWebdav::setConnectionSettings(const QWebdavConnectionType connectionType,
-                                    const QString& hostname,
-                                    const QString& rootPath,
-                                    const QString& username,
-                                    const QString& password,
-                                    int port,
-                                    const QString &sslCertDigestMd5,
-                                    const QString &sslCertDigestSha1)
+void QWebdavDumper::setConnectionSettings(const QWebdavConnectionType connectionType,
+										  const QString& hostname,
+										  const QString& rootPath,
+										  const QString& username,
+										  const QString& password,
+										  int port,
+										  const QString& sslCertDigestMd5,
+										  const QString& sslCertDigestSha1)
 {
     m_rootPath = rootPath;
 
     if ((m_rootPath.size()>0) && (m_rootPath.endsWith("/")))
         m_rootPath.chop(1);
 
-    QString uriScheme;
-    switch (connectionType)
-    {
-    case QWebdav::HTTP:
-        uriScheme = "http";
-        break;
-    case QWebdav::HTTPS:
-        uriScheme = "https";
-        break;
-    }
+	QString uriScheme;
+	switch (connectionType) {
+		case QWebdavDumper::HTTP:
+			uriScheme = "http";
+			break;
+		case QWebdavDumper::HTTPS:
+			uriScheme = "https";
+			break;
+	}
 
-    m_currentConnectionType = connectionType;
+	m_currentConnectionType = connectionType;
 
-    m_baseUrl.setScheme(uriScheme);
+	m_baseUrl.setScheme(uriScheme);
     m_baseUrl.setHost(hostname);
     m_baseUrl.setPath(rootPath);
 
-    if (port != 0) {
+	if (port != 0) {
+		// use user-defined port number
+		if (!(((port == 80) && (m_currentConnectionType == QWebdavDumper::HTTP)) || ((port == 443) && (m_currentConnectionType == QWebdavDumper::HTTPS))))
+			m_baseUrl.setPort(port);
+	}
 
-        // use user-defined port number
-        if ( ! ( ( (port == 80) && (m_currentConnectionType==QWebdav::HTTP) ) ||
-               ( (port == 443) && (m_currentConnectionType==QWebdav::HTTPS) ) ) )
-            m_baseUrl.setPort(port);
-    }
-
-    m_sslCertDigestMd5 = hexToDigest(sslCertDigestMd5);
+	m_sslCertDigestMd5 = hexToDigest(sslCertDigestMd5);
     m_sslCertDigestSha1 = hexToDigest(sslCertDigestSha1);
 
     m_username = username;
     m_password = password;
 }
 
-void QWebdav::acceptSslCertificate(const QString &sslCertDigestMd5,
-                                   const QString &sslCertDigestSha1)
+void QWebdavDumper::acceptSslCertificate(const QString& sslCertDigestMd5,
+										 const QString& sslCertDigestSha1)
 {
     m_sslCertDigestMd5 = hexToDigest(sslCertDigestMd5);
     m_sslCertDigestSha1 = hexToDigest(sslCertDigestSha1);
 }
 
-void QWebdav::replyReadyRead()
+void QWebdavDumper::replyReadyRead()
 {
     auto reply = qobject_cast<QNetworkReply*>(QObject::sender());
     if (reply->bytesAvailable() < 256000)
@@ -170,27 +168,27 @@ void QWebdav::replyReadyRead()
     dataIO->write(reply->readAll());
 }
 
-void QWebdav::replyFinished(QNetworkReply* reply)
+void QWebdavDumper::replyFinished(QNetworkReply* reply)
 {
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdav::replyFinished()";
 #endif
-    disconnect(reply, &QNetworkReply::redirectAllowed, this, &QWebdav::replyReadyRead);
-    disconnect(reply, &QNetworkReply::errorOccurred, this, &QWebdav::replyError);
+	disconnect(reply, &QNetworkReply::redirectAllowed, this, &QWebdavDumper::replyReadyRead);
+	disconnect(reply, &QNetworkReply::errorOccurred, this, &QWebdavDumper::replyError);
 
-    QIODevice* dataIO = m_inDataDevices.value(reply, 0);
-    if (dataIO != 0) {
-        dataIO->write(reply->readAll());
+	QIODevice* dataIO = m_inDataDevices.value(reply, 0);
+	if (dataIO != 0) {
+		dataIO->write(reply->readAll());
         static_cast<QFile*>(dataIO)->flush();
         dataIO->close();
         delete dataIO;
-    }
-    m_inDataDevices.remove(reply);
+	}
+	m_inDataDevices.remove(reply);
 
     QMetaObject::invokeMethod(this,"replyDeleteLater", Qt::QueuedConnection, Q_ARG(QNetworkReply*, reply));
 }
 
-void QWebdav::replyDeleteLater(QNetworkReply* reply)
+void QWebdavDumper::replyDeleteLater(QNetworkReply* reply)
 {
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdav::replyDeleteLater()";
@@ -202,7 +200,7 @@ void QWebdav::replyDeleteLater(QNetworkReply* reply)
     m_outDataDevices.remove(reply);
 }
 
-void QWebdav::replyError(QNetworkReply::NetworkError)
+void QWebdavDumper::replyError(QNetworkReply::NetworkError)
 {
     auto reply = qobject_cast<QNetworkReply*>(QObject::sender());
     if (reply==nullptr)
@@ -224,7 +222,7 @@ void QWebdav::replyError(QNetworkReply::NetworkError)
     emit errorChanged(reply->errorString());
 }
 
-void QWebdav::provideAuthenication(QNetworkReply *reply, QAuthenticator *authenticator)
+void QWebdavDumper::provideAuthenication(QNetworkReply* reply, QAuthenticator* authenticator)
 {
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdav::authenticationRequired()";
@@ -248,7 +246,7 @@ void QWebdav::provideAuthenication(QNetworkReply *reply, QAuthenticator *authent
     authenticator->setPassword(m_password);
 }
 
-void QWebdav::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+void QWebdavDumper::sslErrors(QNetworkReply* reply, const QList<QSslError>& errors)
 {
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdav::sslErrors()   reply->url == " << reply->url().toString(QUrl::RemoveUserInfo);
@@ -268,7 +266,7 @@ void QWebdav::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
     }
 }
 
-QString QWebdav::digestToHex(const QByteArray &input)
+QString QWebdavDumper::digestToHex(const QByteArray& input)
 {
     QByteArray inputHex = input.toHex();
 
@@ -284,7 +282,7 @@ QString QWebdav::digestToHex(const QByteArray &input)
     return result;
 }
 
-QByteArray QWebdav::hexToDigest(const QString &input)
+QByteArray QWebdavDumper::hexToDigest(const QString& input)
 {
     QByteArray result;
     int i = 2;
@@ -298,13 +296,13 @@ QByteArray QWebdav::hexToDigest(const QString &input)
     return QByteArray::fromHex(result);
 }
 
-QString QWebdav::absolutePath(const QString &relPath)
+QString QWebdavDumper::absolutePath(const QString& relPath)
 {
     return QString(m_rootPath + relPath);
 
 }
 
-QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& req, QIODevice* outgoingData)
+QNetworkReply* QWebdavDumper::createRequest(const QString& method, QNetworkRequest& req, QIODevice* outgoingData)
 {
 	if (outgoingData != nullptr && outgoingData->size() != 0) {
 		req.setHeader(QNetworkRequest::ContentLengthHeader, outgoingData->size());
@@ -324,8 +322,7 @@ QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& re
     return sendCustomRequest(req, method.toLatin1(), outgoingData);
 }
 
-
-QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& req, const QByteArray& outgoingData)
+QNetworkReply* QWebdavDumper::createRequest(const QString& method, QNetworkRequest& req, const QByteArray& outgoingData)
 {
     auto dataIO = new QBuffer;
     dataIO->setData(outgoingData);
@@ -346,7 +343,7 @@ QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& re
     return reply;
 }
 
-QNetworkReply* QWebdav::list(const QString& path)
+QNetworkReply* QWebdavDumper::list(const QString& path)
 {
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdav::list() path = " << path;
@@ -354,15 +351,15 @@ QNetworkReply* QWebdav::list(const QString& path)
     return list(path, 1);
 }
 
-QNetworkReply* QWebdav::list(const QString& path, int depth)
+QNetworkReply* QWebdavDumper::list(const QString& path, int depth)
 {
-    QWebdav::PropNames query;
-    QStringList props;
+	QWebdavDumper::PropNames query;
+	QStringList props;
 
-    // Small set of properties
-    // href in response contains also the name
-    // e.g. /container/front.html
-    props << "getlastmodified";         // http://www.webdav.org/specs/rfc4918.html#PROPERTY_getlastmodified
+	// Small set of properties
+	// href in response contains also the name
+	// e.g. /container/front.html
+	props << "getlastmodified";         // http://www.webdav.org/specs/rfc4918.html#PROPERTY_getlastmodified
     // e.g. Mon, 12 Jan 1998 09:25:56 GMT
     props << "getcontentlength";        // http://www.webdav.org/specs/rfc4918.html#PROPERTY_getcontentlength
     // e.g. "4525"
@@ -388,7 +385,7 @@ QNetworkReply* QWebdav::list(const QString& path, int depth)
     return propfind(path, query, depth);
 }
 
-QNetworkReply* QWebdav::search(const QString& path, const QString& q )
+QNetworkReply* QWebdavDumper::search(const QString& path, const QString& q)
 {
     QByteArray query = "<?xml version=\"1.0\"?>\r\n";
     query.append( "<D:searchrequest xmlns:D=\"DAV:\">\r\n" );
@@ -405,7 +402,7 @@ QNetworkReply* QWebdav::search(const QString& path, const QString& q )
     return this->createRequest("SEARCH", req, query);
 }
 
-QNetworkReply* QWebdav::get(const QString& path)
+QNetworkReply* QWebdavDumper::get(const QString& path)
 {
     QNetworkRequest req = buildRequest();
 
@@ -425,12 +422,12 @@ QNetworkReply* QWebdav::get(const QString& path)
     return QNetworkAccessManager::get(req);
 }
 
-QNetworkReply* QWebdav::get(const QString& path, QIODevice* data)
+QNetworkReply* QWebdavDumper::get(const QString& path, QIODevice* data)
 {
     return get(path, data, 0);
 }
 
-QNetworkReply* QWebdav::get(const QString& path, QIODevice* data, quint64 fromRangeInBytes)
+QNetworkReply* QWebdavDumper::get(const QString& path, QIODevice* data, quint64 fromRangeInBytes)
 {
     QNetworkRequest req = buildRequest();
 
@@ -449,15 +446,15 @@ QNetworkReply* QWebdav::get(const QString& path, QIODevice* data, quint64 fromRa
         req.setRawHeader("Range",fromRange);
     }
 
-    QNetworkReply* reply = QNetworkAccessManager::get(req);
-    m_inDataDevices.insert(reply, data);
-    connect(reply, &QNetworkReply::readyRead, this, &QWebdav::replyReadyRead);
-    connect(reply, &QNetworkReply::errorOccurred, this, &QWebdav::replyError);
+	QNetworkReply* reply = QNetworkAccessManager::get(req);
+	m_inDataDevices.insert(reply, data);
+	connect(reply, &QNetworkReply::readyRead, this, &QWebdavDumper::replyReadyRead);
+	connect(reply, &QNetworkReply::errorOccurred, this, &QWebdavDumper::replyError);
 
-    return reply;
+	return reply;
 }
 
-QNetworkReply* QWebdav::put(const QString& path, QIODevice* data)
+QNetworkReply* QWebdavDumper::put(const QString& path, QIODevice* data)
 {
     QNetworkRequest req = buildRequest();
 
@@ -473,7 +470,7 @@ QNetworkReply* QWebdav::put(const QString& path, QIODevice* data)
     return QNetworkAccessManager::put(req, data);
 }
 
-QNetworkReply* QWebdav::put(const QString& path, const QByteArray& data)
+QNetworkReply* QWebdavDumper::put(const QString& path, const QByteArray& data)
 {
     QNetworkRequest req = buildRequest();
 
@@ -488,7 +485,7 @@ QNetworkReply* QWebdav::put(const QString& path, const QByteArray& data)
     return QNetworkAccessManager::put(req, data);
 }
 
-QNetworkReply* QWebdav::propfind(const QString& path, const QWebdav::PropNames& props, int depth)
+QNetworkReply* QWebdavDumper::propfind(const QString& path, const QWebdavDumper::PropNames& props, int depth)
 {
 //    QByteArray query;
     QString query;
@@ -509,8 +506,7 @@ QNetworkReply* QWebdav::propfind(const QString& path, const QWebdav::PropNames& 
     return propfind(path, query.toUtf8(), depth);
 }
 
-
-QNetworkReply* QWebdav::propfind(const QString& path, const QByteArray& query, int depth)
+QNetworkReply* QWebdavDumper::propfind(const QString& path, const QByteArray& query, int depth)
 {
     QNetworkRequest req = buildRequest();
 
@@ -523,7 +519,7 @@ QNetworkReply* QWebdav::propfind(const QString& path, const QByteArray& query, i
     return createRequest("PROPFIND", req, query);
 }
 
-QNetworkReply* QWebdav::proppatch(const QString& path, const QWebdav::PropValues& props)
+QNetworkReply* QWebdavDumper::proppatch(const QString& path, const QWebdavDumper::PropValues& props)
 {
 //    QByteArray query;
     QString query;
@@ -553,7 +549,7 @@ QNetworkReply* QWebdav::proppatch(const QString& path, const QWebdav::PropValues
     return proppatch(path, query.toUtf8());
 }
 
-QNetworkReply* QWebdav::proppatch(const QString& path, const QByteArray& query)
+QNetworkReply* QWebdavDumper::proppatch(const QString& path, const QByteArray& query)
 {
     QNetworkRequest req = buildRequest();
 
@@ -565,7 +561,7 @@ QNetworkReply* QWebdav::proppatch(const QString& path, const QByteArray& query)
     return createRequest("PROPPATCH", req, query);
 }
 
-QNetworkReply* QWebdav::mkdir (const QString& path)
+QNetworkReply* QWebdavDumper::mkdir(const QString& path)
 {
     QNetworkRequest req = buildRequest();
 
@@ -577,7 +573,7 @@ QNetworkReply* QWebdav::mkdir (const QString& path)
     return createRequest("MKCOL", req);
 }
 
-QNetworkReply* QWebdav::copy(const QString& pathFrom, const QString& pathTo, bool overwrite)
+QNetworkReply* QWebdavDumper::copy(const QString& pathFrom, const QString& pathTo, bool overwrite)
 {
     QNetworkRequest req = buildRequest();
 
@@ -601,7 +597,7 @@ QNetworkReply* QWebdav::copy(const QString& pathFrom, const QString& pathTo, boo
     return createRequest("COPY", req);
 }
 
-QNetworkReply* QWebdav::move(const QString& pathFrom, const QString& pathTo, bool overwrite)
+QNetworkReply* QWebdavDumper::move(const QString& pathFrom, const QString& pathTo, bool overwrite)
 {
     QNetworkRequest req = buildRequest();
 
@@ -625,7 +621,7 @@ QNetworkReply* QWebdav::move(const QString& pathFrom, const QString& pathTo, boo
     return createRequest("MOVE", req);
 }
 
-QNetworkReply* QWebdav::remove(const QString& path)
+QNetworkReply* QWebdavDumper::remove(const QString& path)
 {
     QNetworkRequest req = buildRequest();
 
@@ -637,13 +633,14 @@ QNetworkReply* QWebdav::remove(const QString& path)
     return createRequest("DELETE", req);
 }
 
-QNetworkRequest QWebdav::buildRequest() {
-    QNetworkRequest req;
-    if (isSSL()) {
-        QString concatenated = m_username + ":" + m_password;
+QNetworkRequest QWebdavDumper::buildRequest()
+{
+	QNetworkRequest req;
+	if (isSSL()) {
+		QString concatenated = m_username + ":" + m_password;
         QByteArray data = concatenated.toLocal8Bit().toBase64();
         QString headerData = "Basic " + data;
         req.setRawHeader("Authorization", headerData.toLocal8Bit());
-    }
-    return req;
+	}
+	return req;
 }

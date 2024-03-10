@@ -40,16 +40,16 @@ void CrashHandlerPrivate::InitCrashHandler(const QString& dumpPath)
 	}
 
 #if defined(Q_OS_WIN32)
-		std::wstring pathAsStr = (const wchar_t*) dumpPath.utf16();
-		pHandler = new google_breakpad::ExceptionHandler(
-			pathAsStr,
-			/*FilterCallback*/ 0,
-			/*MinidumpCallback*/ 0,
-			/*context*/ 0,
-			true);
+	std::wstring pathAsStr = (const wchar_t*) dumpPath.utf16();
+	pHandler = new google_breakpad::ExceptionHandler(
+		pathAsStr,
+		/*FilterCallback*/ 0,
+		/*MinidumpCallback*/ 0,
+		/*context*/ 0,
+		true);
 
-		//for dump with full memory storage
-		//		pHandler = new google_breakpad::ExceptionHandler(pathAsStr, 0, 0, 0, google_breakpad::ExceptionHandler::HANDLER_ALL, MINIDUMP_TYPE::MiniDumpWithFullMemory, HANDLE(), 0);
+	//for dump with full memory storage
+	//		pHandler = new google_breakpad::ExceptionHandler(pathAsStr, 0, 0, 0, google_breakpad::ExceptionHandler::HANDLER_ALL, MINIDUMP_TYPE::MiniDumpWithFullMemory, HANDLE(), 0);
 
 #elif defined(Q_OS_LINUX)
 	std::string pathAsStr = dumpPath.toStdString();

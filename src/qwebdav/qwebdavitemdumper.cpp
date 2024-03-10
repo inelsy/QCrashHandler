@@ -48,49 +48,47 @@
 **
 ****************************************************************************/
 
-#include "qwebdavitem.h"
-#include "qnaturalsort.h"
+#include "qnaturalsortdumper.h"
+#include "qwebdavitemdumper.h"
 
-QWebdavItem::QWebdavItem() :
-    m_dirOrFile()
-   ,m_path()
-   ,m_name()
-   ,m_ext()
-   ,m_lastModified()
-   ,m_lastModifiedStr()
-   ,m_size(0)
+QWebdavItemDumper::QWebdavItemDumper()
+	: m_dirOrFile()
+	, m_path()
+	, m_name()
+	, m_ext()
+	, m_lastModified()
+	, m_lastModifiedStr()
+	, m_size(0)
 #ifdef QWEBDAVITEM_EXTENDED_PROPERTIES
-   ,m_displayName()
-   ,m_createdAt()
-   ,m_createdAtStr()
-   ,m_contentLanguage()
-   ,m_entityTag()
-   ,m_mimeType()
-   ,m_isExecutable(false)
-   ,m_source()
- #endif // QWEBDAVITEM_EXTENDED_PROPERTIES
+	, m_displayName()
+	, m_createdAt()
+	, m_createdAtStr()
+	, m_contentLanguage()
+	, m_entityTag()
+	, m_mimeType()
+	, m_isExecutable(false)
+	, m_source()
+#endif // QWEBDAVITEM_EXTENDED_PROPERTIES
 {
 }
 
-QWebdavItem::QWebdavItem(const QString &path, const QString &name,
-                         const QString &ext, bool dirOrFile,
-                         const QDateTime &lastModified, quint64 size) :
-   m_dirOrFile(dirOrFile)
-  ,m_path(path)
-  ,m_name(name)
-  ,m_ext(ext)
-  ,m_lastModified(lastModified)
-  ,m_lastModifiedStr(lastModified.toString("yyyy-MM-dd hh:mm")) // ISO format
-  ,m_size(size)
+QWebdavItemDumper::QWebdavItemDumper(const QString &path, const QString &name, const QString &ext, bool dirOrFile, const QDateTime &lastModified, quint64 size)
+	: m_dirOrFile(dirOrFile)
+	, m_path(path)
+	, m_name(name)
+	, m_ext(ext)
+	, m_lastModified(lastModified)
+	, m_lastModifiedStr(lastModified.toString("yyyy-MM-dd hh:mm")) // ISO format
+	, m_size(size)
 #ifdef QWEBDAVITEM_EXTENDED_PROPERTIES
-  ,m_displayName()
-  ,m_createdAt()
-  ,m_createdAtStr()
-  ,m_contentLanguage()
-  ,m_entityTag()
-  ,m_mimeType()
-  ,m_isExecutable(false)
-  ,m_source()
+	, m_displayName()
+	, m_createdAt()
+	, m_createdAtStr()
+	, m_contentLanguage()
+	, m_entityTag()
+	, m_mimeType()
+	, m_isExecutable(false)
+	, m_source()
 #endif // QWEBDAVITEM_EXTENDED_PROPERTIES
 {
 }
@@ -122,37 +120,37 @@ QWebdavItem::QWebdavItem(const QString &path, const QString &name,
 }
 #endif // QWEBDAVITEM_EXTENDED_PROPERTIES
 
-bool QWebdavItem::isDir() const
+bool QWebdavItemDumper::isDir() const
 {
     return m_dirOrFile;
 }
 
-QString QWebdavItem::path() const
+QString QWebdavItemDumper::path() const
 {
     return m_path;
 }
 
-QString QWebdavItem::name() const
+QString QWebdavItemDumper::name() const
 {
     return m_name;
 }
 
-QString QWebdavItem::ext() const
+QString QWebdavItemDumper::ext() const
 {
     return m_ext;
 }
 
-QDateTime QWebdavItem::lastModified() const
+QDateTime QWebdavItemDumper::lastModified() const
 {
     return m_lastModified;
 }
 
-QString QWebdavItem::lastModifiedStr() const
+QString QWebdavItemDumper::lastModifiedStr() const
 {
     return m_lastModifiedStr;
 }
 
-quint64 QWebdavItem::size() const
+quint64 QWebdavItemDumper::size() const
 {
     return m_size;
 }
@@ -198,16 +196,16 @@ QString QWebdavItem::source() const
 }
 #endif // QWEBDAVITEM_EXTENDED_PROPERTIES
 
-bool QWebdavItem::operator <(const QWebdavItem &other) const
+bool QWebdavItemDumper::operator<(const QWebdavItemDumper &other) const
 {
-    if(m_dirOrFile != other.isDir())
-        return m_dirOrFile;
+	if (m_dirOrFile != other.isDir())
+		return m_dirOrFile;
 
-    // sort with simple QString comparison, e.g. 1 10 2 200 6 600
-    //return m_name.toLower() < other.name().toLower();
+	// sort with simple QString comparison, e.g. 1 10 2 200 6 600
+	//return m_name.toLower() < other.name().toLower();
 
-    // natural sort e.g. 1 2 6 10 200 600
-    return QNaturalSort::naturalCompare(m_name.toLower(), other.name().toLower() ) < 0;
+	// natural sort e.g. 1 2 6 10 200 600
+	return QNaturalSortDumper::naturalCompare(m_name.toLower(), other.name().toLower()) < 0;
 }
 
 

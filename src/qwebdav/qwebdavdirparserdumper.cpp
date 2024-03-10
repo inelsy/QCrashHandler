@@ -48,21 +48,22 @@
 **
 ****************************************************************************/
 
-#include "qwebdavdirparser.h"
+#include "qwebdavdirparserdumper.h"
 
-QWebdavDirParser::QWebdavDirParser(QObject *parent) : QObject(parent)
-  ,m_webdav(0)
-  ,m_reply(0)
-  ,m_path()
-  ,m_includeRequestedURI(false)
-  ,m_busy(false)
-  ,m_abort(false)
+QWebdavDirParserDumper::QWebdavDirParserDumper(QObject *parent)
+	: QObject(parent)
+	, m_webdav(0)
+	, m_reply(0)
+	, m_path()
+	, m_includeRequestedURI(false)
+	, m_busy(false)
+	, m_abort(false)
 {
 //    m_mutex.reset(new QMutex(QMutex::Recursive));
     m_mutex.reset(new QRecursiveMutex());
 }
 
-QWebdavDirParser::~QWebdavDirParser()
+QWebdavDirParserDumper::~QWebdavDirParserDumper()
 {
     if (m_reply!=0) {
         m_reply->deleteLater();
@@ -70,7 +71,7 @@ QWebdavDirParser::~QWebdavDirParser()
     }
 }
 
-bool QWebdavDirParser::listDirectory(QWebdav *pWebdav, const QString &path)
+bool QWebdavDirParserDumper::listDirectory(QWebdavDumper *pWebdav, const QString &path)
 {
     if (m_busy)
         return false;
@@ -91,18 +92,18 @@ bool QWebdavDirParser::listDirectory(QWebdav *pWebdav, const QString &path)
     m_path = path;
     m_busy = true;
     m_abort = false;
-    m_includeRequestedURI = false;
+	m_includeRequestedURI = false;
 
-    m_reply = pWebdav->list(path);
-    connect(m_reply, &QNetworkReply::finished, this, &QWebdavDirParser::replyFinished);
+	m_reply = pWebdav->list(path);
+	connect(m_reply, &QNetworkReply::finished, this, &QWebdavDirParserDumper::replyFinished);
 
-    if (!m_dirList.isEmpty())
-        m_dirList.clear();
+	if (!m_dirList.isEmpty())
+		m_dirList.clear();
 
     return true;
 }
 
-bool QWebdavDirParser::listItem(QWebdav *pWebdav, const QString &path)
+bool QWebdavDirParserDumper::listItem(QWebdavDumper *pWebdav, const QString &path)
 {
     if (m_busy)
         return false;
@@ -124,14 +125,14 @@ bool QWebdavDirParser::listItem(QWebdav *pWebdav, const QString &path)
     m_reply = pWebdav->list(path, 0);
 
     if (!m_dirList.isEmpty())
-        m_dirList.clear();
+		m_dirList.clear();
 
-    connect(m_reply, &QNetworkReply::finished, this, &QWebdavDirParser::replyFinished);
+	connect(m_reply, &QNetworkReply::finished, this, &QWebdavDirParserDumper::replyFinished);
 
-    return true;
+	return true;
 }
 
-bool QWebdavDirParser::getDirectoryInfo(QWebdav *pWebdav, const QString &path)
+bool QWebdavDirParserDumper::getDirectoryInfo(QWebdavDumper *pWebdav, const QString &path)
 {
     if (!path.endsWith("/"))
         return false;
@@ -139,7 +140,7 @@ bool QWebdavDirParser::getDirectoryInfo(QWebdav *pWebdav, const QString &path)
     return listItem(pWebdav, path);
 }
 
-bool QWebdavDirParser::getFileInfo(QWebdav *pWebdav, const QString &path)
+bool QWebdavDirParserDumper::getFileInfo(QWebdavDumper *pWebdav, const QString &path)
 {
     if (path.endsWith("/"))
         return false;
@@ -147,17 +148,17 @@ bool QWebdavDirParser::getFileInfo(QWebdav *pWebdav, const QString &path)
     return listItem(pWebdav, path);
 }
 
-QList<QWebdavItem> QWebdavDirParser::getList()
+QList<QWebdavItemDumper> QWebdavDirParserDumper::getList()
 {
     return m_dirList;
 }
 
-bool QWebdavDirParser::isBusy() const
+bool QWebdavDirParserDumper::isBusy() const
 {
     return m_busy;
 }
 
-bool QWebdavDirParser::isFinished() const
+bool QWebdavDirParserDumper::isFinished() const
 {
     if (m_reply!=0)
         return m_reply->isFinished();
@@ -165,12 +166,12 @@ bool QWebdavDirParser::isFinished() const
         return true;
 }
 
-QString QWebdavDirParser::path() const
+QString QWebdavDirParserDumper::path() const
 {
     return m_path;
 }
 
-void QWebdavDirParser::abort()
+void QWebdavDirParserDumper::abort()
 {
     m_abort = true;
 
@@ -181,7 +182,7 @@ void QWebdavDirParser::abort()
     m_busy = false;
 }
 
-void QWebdavDirParser::replyFinished()
+void QWebdavDirParserDumper::replyFinished()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(QObject::sender());
 
@@ -235,7 +236,7 @@ void QWebdavDirParser::replyFinished()
     QMetaObject::invokeMethod(this,"replyDeleteLater", Qt::QueuedConnection, Q_ARG(QNetworkReply*, reply));
 }
 
-void QWebdavDirParser::replyDeleteLater(QNetworkReply* reply)
+void QWebdavDirParserDumper::replyDeleteLater(QNetworkReply *reply)
 {
     if (reply==0)
         return;
@@ -272,7 +273,7 @@ void QWebdavDirParser::replyDeleteLater(QNetworkReply* reply)
 
 }
 
-void QWebdavDirParser::parseMultiResponse(const QByteArray &data)
+void QWebdavDirParserDumper::parseMultiResponse(const QByteArray &data)
 {
     if (m_abort)
         return;
@@ -334,7 +335,7 @@ void QWebdavDirParser::parseMultiResponse(const QByteArray &data)
     std::sort(m_dirList.begin(), m_dirList.end());
 }
 
-void QWebdavDirParser::parseResponse(const QDomElement &dom)
+void QWebdavDirParserDumper::parseResponse(const QDomElement &dom)
 {
     if (m_abort)
         return;
@@ -347,7 +348,7 @@ void QWebdavDirParser::parseResponse(const QDomElement &dom)
     davParsePropstats(urlStr, propstats);
 }
 
-void QWebdavDirParser::davParsePropstats(const QString &path, const QDomNodeList &propstats)
+void QWebdavDirParserDumper::davParsePropstats(const QString &path, const QDomNodeList &propstats)
 {
     if (m_abort)
         return;
@@ -495,20 +496,20 @@ void QWebdavDirParser::davParsePropstats(const QString &path, const QDomNodeList
                                  mimeType, isExecutable,
                                  source));
 #else
-    m_dirList.append(QWebdavItem(path_, name,
+	m_dirList.append(QWebdavItemDumper(path_, name,
                                  ext, dirOrFile,
                                  lastModified, size));
 #endif
 }
 
-int QWebdavDirParser::codeFromResponse( const QString &response )
+int QWebdavDirParserDumper::codeFromResponse(const QString &response)
 {
     int firstSpace = response.indexOf( ' ' );
     int secondSpace = response.indexOf( ' ', firstSpace + 1 );
     return response.mid( firstSpace + 1, secondSpace - firstSpace - 1 ).toInt();
 }
 
-QDateTime QWebdavDirParser::parseDateTime(const QString &input, const QString &type)
+QDateTime QWebdavDirParserDumper::parseDateTime(const QString &input, const QString &type)
 {
     QDateTime datetime;
     QLocale usLocal(QLocale::English, QLocale::UnitedStates);

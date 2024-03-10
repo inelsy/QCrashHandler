@@ -1,8 +1,9 @@
 #include "dumpuploader.h"
 
-DumpUploader::DumpUploader(QObject *parent)
+DumpUploader::DumpUploader(QObject *parent, ConnectionConfig Config)
 	: QObject{parent}
 {
+	WebDavConfig = Config;
 }
 
 DumpUploader::~DumpUploader()
@@ -11,13 +12,7 @@ DumpUploader::~DumpUploader()
 
 bool DumpUploader::uploadfile(QString dumpfilePath)
 {
-	//check openssl
-	//		qDebug() << QSslSocket::supportsSsl() << QSslSocket::sslLibraryBuildVersionString() << QSslSocket::sslLibraryVersionString();
-	//if false "" "" and you have error: "qt.network.ssl: No functional TLS backend was found"
-
-	//TRY DISABLING THE SHADOW BUILD
-
-	w.setConnectionSettings(QWebdav::HTTPS, host, "/", crashdumperUser, crashdumperPass, port);
+	webdav.setConnectionSettings(WebDavConfig.connectionType, WebDavConfig.host, WebDavConfig.rootPath, WebDavConfig.username, WebDavConfig.password, WebDavConfig.port);
 	QFile dumpfile(dumpfilePath);
 	if (!dumpfile.open(QIODevice::ReadOnly)) {
 		return false;
@@ -25,10 +20,9 @@ bool DumpUploader::uploadfile(QString dumpfilePath)
 	QByteArray data = dumpfile.readAll();
 	dumpfile.close();
 
-	QFileInfo file(dumpfilePath);
+	QString name = QFileInfo(dumpfilePath).fileName();
 
-	QString name = file.fileName();
-	auto res = w.put(davEntryPoint + updatesDumpRemotePath + name, data);
+	auto res = webdav.put(WebDavConfig.davEntryPoint + WebDavConfig.updatesDumpRemotePath + name, data);
 
 #ifdef DEBUG_WEBDAV
 	qDebug() << "URL: " << res->url();

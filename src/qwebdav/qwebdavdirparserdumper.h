@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWEBDAVDIRPARSER_H
-#define QWEBDAVDIRPARSER_H
+#ifndef QWEBDAVDIRPARSERDUMPER_H
+#define QWEBDAVDIRPARSERDUMPER_H
 
 // without GUI
 // #include <QtCore>
@@ -61,26 +61,26 @@
 
 #include "qwebdav_global.h"
 
-#include "qwebdav.h"
-#include "qwebdavitem.h"
+#include "qwebdavdumper.h"
+#include "qwebdavitemdumper.h"
 
-class QWEBDAVSHARED_EXPORT QWebdavDirParser : public QObject
+class QWEBDAVDUMPERSHARED_EXPORT QWebdavDirParserDumper : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QWebdavDirParser(QObject *parent = nullptr);
-    ~QWebdavDirParser();
+	explicit QWebdavDirParserDumper(QObject *parent = nullptr);
+	~QWebdavDirParserDumper();
 
-    //! get all items of a collection
-    bool listDirectory(QWebdav *pWebdav, const QString &path);
+	//! get all items of a collection
+	bool listDirectory(QWebdavDumper *pWebdav, const QString &path);
     //! get only information about the collection
-    bool getDirectoryInfo(QWebdav *pWebdav, const QString &path);
+	bool getDirectoryInfo(QWebdavDumper *pWebdav, const QString &path);
     //! get only information about a file
-    bool getFileInfo(QWebdav *pWebdav, const QString &path);
-    bool listItem(QWebdav *pWebdav, const QString &path);
-
-    QList<QWebdavItem> getList();
+	bool getFileInfo(QWebdavDumper *pWebdav, const QString &path);
+	bool listItem(QWebdavDumper *pWebdav, const QString &path);
+	
+	QList<QWebdavItemDumper> getList();
     [[nodiscard]] bool isBusy() const;
     [[nodiscard]] bool isFinished() const;
     [[nodiscard]] QString path() const;
@@ -108,13 +108,13 @@ protected:
 private:
 //    QScopedPointer<QMutex> m_mutex;
     QScopedPointer<QRecursiveMutex> m_mutex;
-    QWebdav *m_webdav;
+	QWebdavDumper *m_webdav;
     QNetworkReply *m_reply;
-    QList<QWebdavItem> m_dirList;
+	QList<QWebdavItemDumper> m_dirList;
     QString m_path;
     bool m_includeRequestedURI;
     bool m_busy;
     bool m_abort;
 };
 
-#endif // QWEBDAVDIRPARSER_H
+#endif // QWEBDAVDIRPARSERDUMPER_H

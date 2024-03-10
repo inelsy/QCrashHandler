@@ -55,14 +55,12 @@
 
 #include <QDateTime>
 
-class QWEBDAVSHARED_EXPORT QWebdavItem
+class QWEBDAVDUMPERSHARED_EXPORT QWebdavItemDumper
 {
 public:
-    QWebdavItem();
+	QWebdavItemDumper();
 
-    QWebdavItem(const QString &path, const QString &name,
-                const QString &ext, bool dirOrFile,
-                const QDateTime &lastModified, quint64 size);
+	QWebdavItemDumper(const QString &path, const QString &name, const QString &ext, bool dirOrFile, const QDateTime &lastModified, quint64 size);
 
 #ifdef QWEBDAVITEM_EXTENDED_PROPERTIES
     QWebdavItem(const QString &path, const QString &name,
@@ -93,7 +91,7 @@ public:
     QString source() const;
 #endif
 
-    bool operator <(const QWebdavItem &other) const;
+	bool operator<(const QWebdavItemDumper &other) const;
 
 protected:
     bool m_dirOrFile;
