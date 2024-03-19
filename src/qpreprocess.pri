@@ -1,12 +1,3 @@
-# for release builds need to force creation of debug symbols
-CONFIG(debug, debug|release) {
-  # nothing here
-} else {
-  # create debug symbols for release builds
-  # NOTE : need to disable optimization, else dump files will point to incorrect source code lines
-  CONFIG *= force_debug_info
-  QMAKE_CXXFLAGS_RELEASE_WITH_DEBUGINFO -= -O2
-}
 # in case of windows, create *.vcxproj.user file to automatically add dependencies paths
 win32 {
   # test if already exists
@@ -37,6 +28,6 @@ win32 {
     </Project>$$escape_expand(\\n)\
     "
     # write file
-    write_file($${VCXPROJ_USER_FILE}, VCXPROJ_USER)  
+    write_file($${VCXPROJ_USER_FILE}, VCXPROJ_USER)
   }
 }
