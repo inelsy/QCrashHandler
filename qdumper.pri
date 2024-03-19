@@ -2,25 +2,18 @@ QT     *= core network xml
 TEMPLATE = app
 
 
-#deploy = 1 #расскоментировать для сборки с отладочной информацией библиотек qt
+#CONFIG += deploy #расскоментировать для сборки с отладочной информацией библиотек qt
 
-exists($$deploy) {
+if($$find(CONFIG, deploy)) {
     CONFIG(release, debug|release) {
-
         CONFIG += debug
-        QMAKE_CXXFLAGS += -O2
-        QMAKE_CFLAGS += -O2
-        QMAKE_CXXFLAGS_RELEASE  += -O2
-        QMAKE_CXXFLAGS_RELEASE  += -O2
-
+        CONFIG += optimize_full
+    } else{
+        CONFIG *= force_debug_info
     }
-} else{
- CONFIG *= force_debug_info
 }
 
-
 DEFINES *= QWEBDAV_LIBRARY
-
 #DEFINES += DEBUG_WEBDAV #for debuging upload files
 
 
