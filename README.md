@@ -1,83 +1,83 @@
-# Usage in project
+# Использование в проекте
 
 
-- include qdumper.pri to your .pro file
+-  Включить `qdumper.pri` в ваш *.pro файл проекта
 ```cmake
 include(qcrashhandler/qdumper.pri)
 ```
 
-- include the class at the entry point of your project
+- Включить заголовочный файл `qdumper.h` в точку входу вашего проекта
 ```c++
 #include "qcrashhandler/qdumper.h"
 ```
 
-- init class
+- Инициализировать класс (сразу после инициализации приложения)
 ```c++
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    QDumper Dumper(0); //using only default value
+    QDumper Dumper(0); //Использовать значения по умолчанию
 
-    /*or*/ QDumper Dumper("pathToDumpsFolder"); //set path to save Dumps
+    /*или*/ QDumper Dumper("pathToDumpsFolder"); //установить путь для сохранения дампов
 
-    /*or*/ QDumper Dumper("pathToDumpsFolder", deleteDumpAfterUploadBoolFlag); // add the bool flag to delete this dump after uploading 
+    /*или*/ QDumper Dumper("pathToDumpsFolder", deleteDumpAfterUploadBoolFlag); // еще указать флаг для удаления дампов после отправки на сервер 
 
-    /*or*/ QDumper Dumper("pathToDumpsFolder", deleteDumpAfterUploadBoolFlag, parent); // add parent for delete Dumper along with it
+    /*or*/ QDumper Dumper("pathToDumpsFolder", deleteDumpAfterUploadBoolFlag, parent); // еще указать ссылку на родительский элемент
 
 
-    // ... other stuff
+    // ... остальной ваш код
 
     return a.exec();
 }
 ```
 
 
-# Generating and reading dumps 
+# Генерация и чтение дампов 
 
-## Generating PROJECT for mingw 
+## Сборка проекта PROJECT на mingw 
 
-1. Create PROJECT.pdb from your PROJECT.exe (use [cv2pdb](https://github.com/rainers/cv2pdb)) **only for windows**
+1. Создать из вашего PROJECT.exe > PROJECT.pdb - файл символов (используйте [cv2pdb](https://github.com/rainers/cv2pdb)) **только для windows**
     ```bash
     cv2pdb.exe PROJECT.exe 
     ```
-1. Create PROJECT.sym (use dump_syms of [breakpad](https://github.com/google/breakpad))
+1. Создать PROJECT.sym - карта символов (используйте dump_syms от [breakpad](https://github.com/google/breakpad))
     ```bash
-    breakpad.git/src/tools/windows/binaries/dump_syms.exe PROJECT.exe > PROJECT.sym
+    deps/breakpad.git/src/tools/windows/binaries/dump_syms.exe PROJECT.exe > PROJECT.sym
     ```
     </br>
 
-    on **linux** PROJECT is binary/esecutable, could be *.so file
+    на **linux** PROJECT - это двоичный/исполняемый файл, может быть файлом *.so
     ```bash
-    breakpad.git/src/tools/linux/binaries/dump_syms PROJECT > PROJECT.sym
+    deps/breakpad.git/src/tools/linux/binaries/dump_syms PROJECT > PROJECT.sym
     ```
     </br>
 
-    The first line of PROJECT.sym contains: 
+    Первая строка файла PROJECT.sym содержит: 
     
     > MODULE windows x86_64 63D1AC58C4A2CBA81511319C65247FE90 PROJECT.pdb
     
-    *should always refer to a file with debugging information, i.e. PROJECT.pdb*
+    *всегда в конце должен быть указан файл с отладочной информацией, то есть файл символов PROJECT.pdb для windows или PROJECT для linux*
 
-    *63D1AC58C4A2CBA81511319C65247FE90 is the random `BUILD_ID` of this PROJECT*
-1. Create a special directory
+    *63D1AC58C4A2CBA81511319C65247FE90 - это случайный номер сборки `BUILD_ID` вашего проекта PROJECT*
+1. Создать специальную директорию
     ```bash
-    mkdir /PROJECT.pdb/BUILD_ID/PROJECT.sym
+    mkdir ./PROJECT.pdb/BUILD_ID/PROJECT.sym
     ```
 
-How to read dumps, you need to specify the directory in front of the PROJECT.pdb folder as the `SYMDIR` folder
+Для чтения дампов нужно указать папку **перед** папкой PROJECT.pdb, дальше будем называть её `SYMDIR`
 
-## Reading dumps (use minidump_stackwalk of [breakpad](https://github.com/google/breakpad) or [mozilla](https://github.com/rust-minidump/rust-minidump))
+## Чтение дампов (используйте minidump_stackwalk от [breakpad](https://github.com/google/breakpad) или [mozilla](https://github.com/rust-minidump/rust-minidump))
 
 ```bash
 minidump_stackwalk.exe file.dmp /path/To/SYMDIR/ [flags] > result.txt
 ```
-[flags] – useful flags:
-- `-brief` to delete unnecessary lines with files (only the stack and system information will remain)
-- `-json` to save the file in json format
+[flags] – полезные флаги **(для minidump_stackwalk от mozilla)**:
+- `-brief` удалить информацию о файлах зависимостей (останется только информация о системе и стэк вызовов)
+- `-json` сохранить результат в формате json 
 
 </br>
 
-> QDumper based on QCrashHandler [(README)](./src/qcrashhandler/README.md)
+> QDumper основан на QCrashHandler [(README)](./src/qcrashhandler/README.md)
 
-> Additional information is available [here](https://github.com/JPNaude/dev_notes/wiki/Using-Google-Breakpad-with-Qt)
+> Дополнительная информация о внутренней работе breakpad в проектах Qt - [тут](https://github.com/JPNaude/dev_notes/wiki/Using-Google-Breakpad-with-Qt)
