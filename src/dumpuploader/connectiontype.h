@@ -5,19 +5,14 @@
 
 struct ConnectionConfig
 {
-	QWebdavDumper::QWebdavConnectionType connectionType = QWebdavDumper::HTTPS;
-	QString host = "inls.freemyip.com";
-	QString rootPath = "/";
-	QString username = "dumper";
-	QString password = "CrashieDumpington";
-	int short port = 443;
-	QString davEntryPoint = "/remote.php/webdav";
-
-#if defined(Q_OS_WIN32)
-	QString updatesDumpRemotePath = "/crashdumps/windows/dumps/";
-#elif defined(Q_OS_LINUX)
-	const QString updatesDumpRemotePath = "/crashdumps/linux/dumps/";
-#endif
+    QWebdavDumper::QWebdavConnectionType connectionType = QWebdavDumper::HTTPS;
+    QString host;
+    QString rootPath;
+    QString username;
+    QString password;
+    int short port;
+    QString davEntryPoint;
+    QString updatesDumpRemotePath;
 };
 
 #endif // CONNECTIONTYPE_H
