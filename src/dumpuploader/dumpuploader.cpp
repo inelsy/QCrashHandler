@@ -1,7 +1,7 @@
 #include "dumpuploader.h"
 
-DumpUploader::DumpUploader(QObject *parent, ConnectionConfig Config)
-	: QObject{parent}
+DumpUploader::DumpUploader(ConnectionConfig Config, QObject *parent)
+    : QObject{parent}
 {
 	WebDavConfig = Config;
 }

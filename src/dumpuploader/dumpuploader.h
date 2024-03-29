@@ -11,10 +11,10 @@ class DumpUploader : public QObject
 	Q_OBJECT
 
 public:
-	explicit DumpUploader(QObject *parent = nullptr, ConnectionConfig Config = ConnectionConfig());
+    explicit DumpUploader(ConnectionConfig Config, QObject *parent = nullptr);
 
-	bool uploadfile(QString dumpfilePath);
-	~DumpUploader();
+    bool uploadfile(QString dumpfilePath);
+    ~DumpUploader();
 
 private:
 	QWebdavDumper webdav;
