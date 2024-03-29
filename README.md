@@ -1,29 +1,4 @@
-<<<<<<< HEAD
 # Использование в проекте
-=======
-## Usage in project
-
-
-- include qtdumper.pri to your .pro file
-```cmake
-include(qcrashhandler/qtdumper.pri)
-```
-
-- include the class at the entry point of your project
-```c++
-#include "qtdumper/qtdumper.h"
-```
-
-- init class
-```c++
-QtDumper Dumper();
-// or QtDumper Dumper(parent);
-// or QtDumper Dumper(parent, deleteDumpAfterUploadBoolFlag);
-// or QtDumper Dumper(parent, deleteDumpAfterUploadBoolFlag, "pathToDumpsFolder");
-```
-
-## How to Use
->>>>>>> upstream/master
 
 
 -  Включить `qdumper.pri` в ваш *.pro файл проекта
