@@ -18,6 +18,10 @@ git submodule add https://github.com/inelsy/QCrashHandler.git YOURPATH/QCrashHan
 	url = https://github.com/inelsy/QCrashHandler.git
 ```
 
+Загрузить модули, вложенные в QCrashhandler 
+```bash
+git submodule update --init --recursive
+```
 
 -  Включить `qdumper.pri` в ваш **\*.pro** файл проекта
 ```cmake
