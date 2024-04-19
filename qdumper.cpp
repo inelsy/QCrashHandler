@@ -20,7 +20,7 @@ QDumper::QDumper(QString reportPath, bool dDAUFlag, ConnectionConfig config, QOb
 QDir QDumper::createDumpsDir(QString dumpsDirPath)
 {
     QDir dumpsDir;
-    if (dumpsDirPath.isEmpty()) {
+    if (!dumpsDirPath.isEmpty()) {
         dumpsDir = QDir(dumpsDirPath);
         return dumpsDir;
     }
