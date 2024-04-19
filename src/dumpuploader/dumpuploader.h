@@ -11,9 +11,9 @@ class DumpUploader : public QObject
 	Q_OBJECT
 
 public:
-	explicit DumpUploader(ConnectionConfig Config = ConnectionConfig(), QObject *parent = nullptr );
+	explicit DumpUploader(QObject *parent = nullptr, ConnectionConfig Config = ConnectionConfig());
 
-	void uploadfile(QString dumpfilePath, std::function<void()> deleteDump);
+	bool uploadfile(QString dumpfilePath);
 	~DumpUploader();
 
 private:
