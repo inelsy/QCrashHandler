@@ -20,7 +20,7 @@ git submodule add https://github.com/inelsy/QCrashHandler.git YOURPATH/QCrashHan
 
 Загрузить модули, вложенные в QCrashhandler 
 ```bash
-git submodule update --init --recursive
+git submodule update --init --remote --rebase --recursive
 ```
 
 -  Включить `qdumper.pri` в ваш **\*.pro** файл проекта
