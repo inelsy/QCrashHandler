@@ -1,6 +1,6 @@
 #include "dumpuploader.h"
 
-DumpUploader::DumpUploader(QObject *parent, ConnectionConfig Config)
+DumpUploader::DumpUploader(ConnectionConfig Config, QObject *parent)
 	: QObject{parent}
 {
 	WebDavConfig = Config;
@@ -10,12 +10,12 @@ DumpUploader::~DumpUploader()
 {
 }
 
-bool DumpUploader::uploadfile(QString dumpfilePath)
+void DumpUploader::uploadfile(QString dumpfilePath, std::function<void()> deleteDump)
 {
 	webdav.setConnectionSettings(WebDavConfig.connectionType, WebDavConfig.host, WebDavConfig.rootPath, WebDavConfig.username, WebDavConfig.password, WebDavConfig.port);
 	QFile dumpfile(dumpfilePath);
 	if (!dumpfile.open(QIODevice::ReadOnly)) {
-		return false;
+		return;
 	}
 	QByteArray data = dumpfile.readAll();
 	dumpfile.close();
@@ -77,18 +77,18 @@ bool DumpUploader::uploadfile(QString dumpfilePath)
 	});
 #endif
 
-	connect(res, &QNetworkReply::finished, this, [res]() mutable {
+	connect(res, &QNetworkReply::finished, this, [res, deleteDump]() mutable {
 #ifdef DEBUG_WEBDAV
 		qDebug() << "got finished";
 
 #endif
 		if (res->error() == QNetworkReply::NoError) {
 			qDebug() << "DUMPFile uploaded successfully";
+			deleteDump();
 		} else {
 			qDebug() << "Error uploading file:" << res->errorString();
+			return;
 		}
 		res->deleteLater();
-		//			qDebug() << (res->error());
 	});
-	return true;
 }
