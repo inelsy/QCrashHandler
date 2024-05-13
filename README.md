@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 ### Собирать проект нужно в режиме `debug` или в любом режиме (debug|release), только с дополнительным параметром сборки проекта `"CONFIG+=deploy"`, который собирает проект, как debug-сборку
 
 
-1. <a name="important_step"></a> Создать из вашего PROJECT.exe > PROJECT.pdb - файл символов (используйте [cv2pdb](https://github.com/rainers/cv2pdb), находится в QCrashHandler: `src/cv2pdb.exe`) **только для windows**
+1. <a name="important_step"></a> Создать из вашего PROJECT.exe > PROJECT.pdb - файл символов (используйте [cv2pdb](https://github.com/rainers/cv2pdb), в QCrashHandler используется версия 0.52: `src/cv2pdb.exe`) **только для windows x64**
     ```bash
     PROJECT/YOURPATH/QCrashHandler/src/cv2pdb.exe PROJECT/debug/PROJECT.exe 
     ```
