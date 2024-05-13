@@ -362,7 +362,7 @@ Thumbs.db
 
 # Binaries
 # --------
-*.dll
+# *.dll
 # *.exe
 
 *.stash
